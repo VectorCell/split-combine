@@ -56,11 +56,11 @@ bool parse_args (int argc, char *argv[], Mode& mode, vector<string>& filenames)
 				verbose = true;
 				break;
 			case 's':
-				cerr << "using split mode" << endl;
+				// cerr << "using split mode" << endl;
 				mode = SPLIT;
 				break;
 			case 'c':
-				cerr << "using combine mode" << endl;
+				// cerr << "using combine mode" << endl;
 				mode = COMBINE;
 				break;
 			default:
@@ -70,7 +70,7 @@ bool parse_args (int argc, char *argv[], Mode& mode, vector<string>& filenames)
 	}
 
 	for (int k = optind; k < argc; ++k) {
-		cerr << "argv[" << k << "] :: " << argv[k] << endl;
+		// cerr << "argv[" << k << "] :: " << argv[k] << endl;
 		filenames.push_back(argv[k]);
 	}
 
@@ -118,7 +118,7 @@ int mode_split (const vector<string>& filenames) {
 			idx = 0;
 	}
 
-	cerr << "split a total of " << n_bytes << " bytes" << endl;
+	// cerr << "split a total of " << n_bytes << " bytes" << endl;
 
 	for (FILE*& f : outfiles) {
 		fclose(f);
@@ -162,7 +162,7 @@ int mode_combine (const vector<string>& filenames) {
 				} else if (label == "") {
 					continue;
 				}
-				cerr << "found label " << label << " with value " << value << endl;
+				// cerr << "found label " << label << " with value " << value << endl;
 			}
 			if (index < 0 || n_streams < 0) {
 				cerr << "ERROR: unable to parse control block!" << endl;
@@ -189,7 +189,7 @@ int mode_combine (const vector<string>& filenames) {
 			idx = 0;
 	}
 
-	cerr << "combined a total of " << n_bytes << " bytes" << endl;
+	// cerr << "combined a total of " << n_bytes << " bytes" << endl;
 
 	for (FILE*& f : infiles) {
 		fclose(f);
@@ -218,11 +218,11 @@ int main (int argc, char *argv[])
 	int retval = EXIT_SUCCESS;
 	switch (mode) {
 		case SPLIT:
-			cerr << "mode: SPLIT" << endl;
+			// cerr << "mode: SPLIT" << endl;
 			retval = mode_split(filenames);
 			break;
 		case COMBINE:
-			cerr << "mode: COMBINE" << endl;
+			// cerr << "mode: COMBINE" << endl;
 			retval = mode_combine(filenames);
 			break;
 		case UNSET:
@@ -232,6 +232,6 @@ int main (int argc, char *argv[])
 			cerr << "ERROR: unknown mode!" << endl;
 			retval = EXIT_FAILURE;
 	}
-	cerr << "exiting with code " << retval << endl;
+	// cerr << "exiting with code " << retval << endl;
 	return retval;
 }
