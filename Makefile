@@ -21,6 +21,13 @@ split-combine : split-combine.cc
 test: all
 	./test.sh
 
+install: all
+	./install.sh
+
+uninstall:
+	rm $(which sc)
+	rm $(which split-combine)
+
 clean :
 	rm -f *.o
 	rm -f *.d
