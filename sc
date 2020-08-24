@@ -79,6 +79,12 @@ elif [ "$DEST" == "nissan" ]; then
 	nc -N 172.16.2.3 8802 < b &
 	$SPLIT_COMBINE -s a b
 
+elif [ "$DEST" == "precisix" ]; then
+	mkfifo a b
+	nc -N 172.16.1.4 8801 < a &
+	nc -N 10.0.1.103 8802 < b &
+	$SPLIT_COMBINE -s a b
+
 elif [ "$DEST" == "green-3" ]; then
 	mkfifo a b c
 	nc -N 172.16.1.1 8801 < a &
