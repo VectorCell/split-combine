@@ -23,10 +23,26 @@ MODE="$1"
 
 if [ "$MODE" == "-l" ]; then
 
-	mkfifo a b
-	nc -l 8801 > a &
-	nc -l 8802 > b &
-	$SPLIT_COMBINE -c a b
+	N_STREAMS="$2"
+	if [ -z "$N_STREAMS" ]; then
+		N_STREAMS=2
+	fi
+
+	if [ "$N_STREAMS" == "2" ]; then
+		mkfifo a b
+		nc -l 8801 > a &
+		nc -l 8802 > b &
+		$SPLIT_COMBINE -c a b
+	elif [ "$N_STREAMS" == "3" ]; then
+		mkfifo a b c
+		nc -l 8801 > a &
+		nc -l 8802 > b &
+		nc -l 8803 > c &
+		$SPLIT_COMBINE -c a b c
+	else
+		echo "ERROR: unknown number of streams: $N_STREAMS" 1>%2
+		clean_exit
+	fi
 
 	wait
 
