@@ -2,6 +2,34 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
+if [ -z "$1" ]; then
+	echo "Usage:"
+	echo
+	echo "LISTEN MODE:"
+	echo
+	echo -e "\tsc -l [N_STREAMS]"
+	echo
+	echo -e "\tThe default value of N_STREAMS is 2."
+	echo -e "\tThis must match the number of streams in the configuration"
+	echo -e "\tthat the sender is using."
+	echo
+	echo "SEND MODE:"
+	echo
+	echo -e "\tsc DEST"
+	echo
+	echo -e "\tDEST must be the name of a valid configuration in this script."
+	echo -e "\tValid configurations are:"
+	echo -e "\t\tgreen"
+	echo -e "\t\tgreen-3"
+	echo -e "\t\ttank"
+	echo -e "\t\ttank-3"
+	echo -e "\t\tnissan"
+	echo -e "\t\tnissan-3"
+	echo -e "\t\tprecisix"
+	echo
+	exit 1
+fi
+
 TEMPDIR=$(mktemp -d /tmp/split-combine.XXXXXX)
 cd $TEMPDIR
 
@@ -40,7 +68,7 @@ if [ "$MODE" == "-l" ]; then
 		nc -l 8803 > c &
 		$SPLIT_COMBINE -c a b c
 	else
-		echo "ERROR: unknown number of streams: $N_STREAMS" 1>%2
+		echo "ERROR: unsupported number of streams: $N_STREAMS" 1>%2
 		clean_exit
 	fi
 
