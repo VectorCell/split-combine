@@ -1,54 +1,92 @@
 #!/bin/bash
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+TEMPDIR=$(mktemp -d /tmp/split-combine.XXXXXX)
+cd $TEMPDIR
+
+function clean_exit () {
+	# maybe can also do this?
+	pkill -P $$
+	# for PID in $(jobs -p); do
+	# 	kill -9 $PID 2> /dev/null
+	# done
+	cd /
+	rm -rf $TEMPDIR
+	exit
+}
+trap clean_exit SIGINT
+
 SPLIT_COMBINE="$DIR/split-combine"
 
 MODE="$1"
 
 if [ "$MODE" == "-l" ]; then
-	# N_STREAMS="$2"
-	# if [ -z "$N_STREAMS" ]; then
-	# 	echo "ERROR: must specify number of streams!" 1>&2
-	# 	exit 1
-	# fi
-
-	TEMPDIR=$(mktemp -d /tmp/split-combine.XXXXXX)
-	cd $TEMPDIR
 
 	mkfifo a b
 	nc -l 8801 > a &
 	nc -l 8802 > b &
-
 	$SPLIT_COMBINE -c a b
-
-	cd /tmp
-	rm -rf $TEMPDIR
-elif [ "$MODE" == "-s" ]; then
-
-	TEMPDIR=$(mktemp -d /tmp/split-combine.XXXXXX)
-	cd $TEMPDIR
-
-	mkfifo a b
-	nc -N 127.0.0.1 8801 < a &
-	nc -N 127.0.0.1 8802 < b &
-
-	PORT=8801
-	for ARG in "$@"; do
-		if [ "$ARG" == "$MODE"]; then
-			continue
-		fi
-		mkfifo fifo-$PORT
-		nc -N $ARG $PORT < fifo-$PORT &
-		((PORT=PORT+1))
-	done
-
-	$SPLIT_COMBINE -s a b
 
 	wait
 
 	cd /tmp
 	rm -rf $TEMPDIR
+	clean_exit
+
+elif [ "$MODE" == "-s" ]; then
+	DEST="$2"
 else
-	echo "ERROR: unrecognized mode: $MODE" 1>&2
-	exit 1
+	DEST="$MODE"
 fi
+
+
+if [ "$DEST" == "null" ]; then
+	echo "NOT SENDING ANYWHERE" 1>&2
+	cat > /dev/null
+
+elif [ "$DEST" == "green" ]; then
+	mkfifo a b
+	nc -N 172.16.1.1 8801 < a &
+	nc -N 172.16.2.1 8802 < b &
+	$SPLIT_COMBINE -s a b
+
+elif [ "$DEST" == "tank" ]; then
+	mkfifo a b
+	nc -N 172.16.1.2 8801 < a &
+	nc -N 172.16.2.2 8802 < b &
+	$SPLIT_COMBINE -s a b
+
+elif [ "$DEST" == "nissan" ]; then
+	mkfifo a b
+	nc -N 172.16.1.3 8801 < a &
+	nc -N 172.16.2.3 8802 < b &
+	$SPLIT_COMBINE -s a b
+
+elif [ "$DEST" == "green-3" ]; then
+	mkfifo a b c
+	nc -N 172.16.1.1 8801 < a &
+	nc -N 172.16.2.1 8802 < b &
+	nc -N 10.0.1.100 8803 < c &
+	$SPLIT_COMBINE -s a b c
+
+elif [ "$DEST" == "tank-3" ]; then
+	mkfifo a b c
+	nc -N 172.16.1.2 8801 < a &
+	nc -N 172.16.2.2 8802 < b &
+	nc -N 10.0.1.101 8803 < c &
+	$SPLIT_COMBINE -s a b c
+
+elif [ "$DEST" == "nissan-3" ]; then
+	mkfifo a b c
+	nc -N 172.16.1.3 8801 < a &
+	nc -N 172.16.2.3 8802 < b &
+	nc -N 10.0.1.102 8803 < c &
+	$SPLIT_COMBINE -s a b c
+
+else
+	echo "ERROR: unknown destination: $DEST" 1>&2
+	clean_exit
+fi
+
+clean_exit

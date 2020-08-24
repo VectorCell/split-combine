@@ -26,5 +26,6 @@ clean :
 	rm -f *.d
 	rm -f *.elf
 	rm -f split-combine
+	rm -rf /tmp/split-combine*
 
 -include *.d
