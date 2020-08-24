@@ -123,6 +123,7 @@ int mode_split (const vector<string>& filenames) {
 	for (FILE*& f : outfiles) {
 		fclose(f);
 	}
+	fclose(infile);
 
 	return EXIT_SUCCESS;
 }
@@ -194,6 +195,7 @@ int mode_combine (const vector<string>& filenames) {
 	for (FILE*& f : infiles) {
 		fclose(f);
 	}
+	fclose(outfile);
 
 	return EXIT_SUCCESS;
 }
