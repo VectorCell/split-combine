@@ -49,7 +49,6 @@ N_STREAMS="2"
 if [ "$MODE" == "-l" ]; then
 
 	# listen mode
-	echo "LISTEN MODE" 1>&2
 
 	N_STREAMS="$2"
 	if [ -z "$N_STREAMS" ]; then
