@@ -60,14 +60,14 @@ if [ "$MODE" == "-l" ]; then
 		mkfifo a b
 		nc -l 8801 > a &
 		nc -l 8802 > b &
-		echo "listening on ports 8801, 8802" 1>&2
+		# echo "listening on ports 8801, 8802" 1>&2
 		$SPLIT_COMBINE -c a b
 	elif [ "$N_STREAMS" == "3" ]; then
 		mkfifo a b c
 		nc -l 8801 > a &
 		nc -l 8802 > b &
 		nc -l 8803 > c &
-		echo "listening on ports 8801, 8802, 8803" 1>&2
+		# echo "listening on ports 8801, 8802, 8803" 1>&2
 		$SPLIT_COMBINE -c a b c
 	else
 		echo "ERROR: unsupported number of streams: $N_STREAMS" 1>&2
@@ -136,16 +136,16 @@ fi
 
 # now we can finally start sending data
 if [ "$N_STREAMS" == "2" ]; then
-	echo "IP_A: $IP_A"
-	echo "IP_B: $IP_B"
+	# echo "IP_A: $IP_A"
+	# echo "IP_B: $IP_B"
 	mkfifo a b
 	nc -N $IP_A 8801 < a &
 	nc -N $IP_B 8802 < b &
 	$SPLIT_COMBINE -s a b
 elif [ "$N_STREAMS" == "3" ]; then
-	echo "IP_A: $IP_A"
-	echo "IP_B: $IP_B"
-	echo "IP_C: $IP_C"
+	# echo "IP_A: $IP_A"
+	# echo "IP_B: $IP_B"
+	# echo "IP_C: $IP_C"
 	mkfifo a b c
 	nc -N $IP_A 8801 < a &
 	nc -N $IP_B 8802 < b &
