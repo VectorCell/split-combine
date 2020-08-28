@@ -84,12 +84,6 @@ else
 	N_STREAMS=$2
 fi
 
-
-if [ $N_STREAMS -lt 2 ] || [ $N_STREAMS -gt 3 ]; then
-	echo "ERROR: unsupported number of streams: $N_STREAMS" 1>&2
-	clean_exit
-fi
-
 # IP_A is on the first auxiliary subnet  172.16.1.0/24
 # IP_B is on the second auxiliary subnet 172.16.2.0/24
 # IP_C is on the primary network, subnet 10.0.0.0/16
