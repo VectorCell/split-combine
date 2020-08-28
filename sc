@@ -34,11 +34,7 @@ TEMPDIR=$(mktemp -d /tmp/split-combine.XXXXXX)
 cd $TEMPDIR
 
 function clean_exit () {
-	# maybe can also do this?
 	pkill -P $$
-	# for PID in $(jobs -p); do
-	# 	kill -9 $PID 2> /dev/null
-	# done
 	cd /
 	rm -rf $TEMPDIR
 	exit
@@ -51,9 +47,11 @@ MODE="$1"
 
 if [ "$MODE" == "-l" ]; then
 
+	# listen mode
+
 	N_STREAMS="$2"
 	if [ -z "$N_STREAMS" ]; then
-		N_STREAMS=2
+		N_STREAMS="2"
 	fi
 
 	if [ "$N_STREAMS" == "2" ]; then
@@ -80,63 +78,74 @@ if [ "$MODE" == "-l" ]; then
 
 elif [ "$MODE" == "-s" ]; then
 	DEST="$2"
+	N_STREAMS=$3
 else
-	DEST="$MODE"
+	DEST="$1"
+	N_STREAMS=$2
 fi
 
 
+if [ $N_STREAMS != 2 ] && [ $N_STREAMS != 3 ]; then
+	echo "ERROR: unsupported number of streams: $N_STREAMS" 1>&2
+	clean_exit
+fi
+
+# IP_A is on the first auxiliary subnet  172.16.1.0/24
+# IP_B is on the second auxiliary subnet 172.16.2.0/24
+# IP_C is on the primary network, subnet 10.0.0.0/16
 if [ "$DEST" == "null" ]; then
 	echo "NOT SENDING ANYWHERE" 1>&2
 	cat > /dev/null
-
 elif [ "$DEST" == "green" ]; then
-	mkfifo a b
-	nc -N 172.16.1.1 8801 < a &
-	nc -N 172.16.2.1 8802 < b &
-	$SPLIT_COMBINE -s a b
-
+	IP_A=172.16.1.1
+	IP_B=172.16.2.1
+	IP_C=10.0.1.100
 elif [ "$DEST" == "tank" ]; then
-	mkfifo a b
-	nc -N 172.16.1.2 8801 < a &
-	nc -N 172.16.2.2 8802 < b &
-	$SPLIT_COMBINE -s a b
-
+	IP_A=172.16.1.2
+	IP_B=172.16.2.2
+	IP_C=10.0.1.101
 elif [ "$DEST" == "nissan" ]; then
-	mkfifo a b
-	nc -N 172.16.1.3 8801 < a &
-	nc -N 172.16.2.3 8802 < b &
-	$SPLIT_COMBINE -s a b
-
+	IP_A=172.16.1.3
+	IP_B=172.16.2.3
+	IP_C=10.0.1.102
 elif [ "$DEST" == "precisix" ]; then
-	mkfifo a b
-	nc -N 172.16.1.4 8801 < a &
-	nc -N 10.0.1.103 8802 < b &
-	$SPLIT_COMBINE -s a b
-
-elif [ "$DEST" == "green-3" ]; then
-	mkfifo a b c
-	nc -N 172.16.1.1 8801 < a &
-	nc -N 172.16.2.1 8802 < b &
-	nc -N 10.0.1.100 8803 < c &
-	$SPLIT_COMBINE -s a b c
-
-elif [ "$DEST" == "tank-3" ]; then
-	mkfifo a b c
-	nc -N 172.16.1.2 8801 < a &
-	nc -N 172.16.2.2 8802 < b &
-	nc -N 10.0.1.101 8803 < c &
-	$SPLIT_COMBINE -s a b c
-
-elif [ "$DEST" == "nissan-3" ]; then
-	mkfifo a b c
-	nc -N 172.16.1.3 8801 < a &
-	nc -N 172.16.2.3 8802 < b &
-	nc -N 10.0.1.102 8803 < c &
-	$SPLIT_COMBINE -s a b c
-
+	IP_A=172.16.1.4
+	IP_B=null
+	IP_C=10.0.1.103
 else
 	echo "ERROR: unknown destination: $DEST" 1>&2
 	clean_exit
 fi
+
+
+if [ $N_STREAMS == 3 ] && [ "$IP_B" == "null" ]; then
+	echo "ERROR: unsupported configuration!" 1>&2
+	echo "       this host ($HOSTNAME) only supports 2 concurrent streams" 1>&2
+	clean_exit
+fi
+if [ "$IP_B" == "null" ]; then
+	# for machines without a connection to the second auxiliary subnet
+	IP_B=$IP_C
+fi
+
+
+# now we can finally start sending data
+if [ $N_STREAMS == 2 ]; then
+	mkfifo a b
+	nc -N $IP_A 8801 < a &
+	nc -N $IP_B 8802 < b &
+	$SPLIT_COMBINE -s a b
+elif [ $N_STREAMS == 3 ]; then
+	mkfifo a b c
+	nc -N $IP_A 8801 < a &
+	nc -N $IP_B 8802 < b &
+	nc -N $IP_C 8802 < c &
+	$SPLIT_COMBINE -s a b c
+else
+	echo "ERROR: unknown number of streams!" 1>&2
+	echo "THIS IS A LOGIC ERROR" 1>&2
+	clean_exit
+fi
+
 
 clean_exit
