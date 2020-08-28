@@ -141,6 +141,7 @@ if [ "$N_STREAMS" == "2" ]; then
 	nc -N $IP_A 8801 < a &
 	nc -N $IP_B 8802 < b &
 	$SPLIT_COMBINE -s a b
+	wait
 elif [ "$N_STREAMS" == "3" ]; then
 	# echo "IP_A: $IP_A"
 	# echo "IP_B: $IP_B"
@@ -150,6 +151,7 @@ elif [ "$N_STREAMS" == "3" ]; then
 	nc -N $IP_B 8802 < b &
 	nc -N $IP_C 8803 < c &
 	$SPLIT_COMBINE -s a b c
+	wait
 else
 	echo "ERROR: unknown number of streams: $N_STREAMS" 1>&2
 	echo "THIS IS A LOGIC ERROR" 1>&2
