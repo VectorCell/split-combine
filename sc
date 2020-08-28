@@ -85,7 +85,7 @@ else
 fi
 
 
-if [ $N_STREAMS != 2 ] && [ $N_STREAMS != 3 ]; then
+if [ $N_STREAMS -lt 2 ] || [ $N_STREAMS -gt 3 ]; then
 	echo "ERROR: unsupported number of streams: $N_STREAMS" 1>&2
 	clean_exit
 fi
