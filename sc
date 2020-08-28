@@ -112,7 +112,7 @@ else
 fi
 
 
-if [ $N_STREAMS == 3 ] && [ "$IP_B" == "null" ]; then
+if [ "$N_STREAMS" == "3" ] && [ "$IP_B" == "null" ]; then
 	echo "ERROR: unsupported configuration!" 1>&2
 	echo "       this host ($HOSTNAME) only supports 2 concurrent streams" 1>&2
 	clean_exit
