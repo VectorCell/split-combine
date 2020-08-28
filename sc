@@ -124,12 +124,12 @@ fi
 
 
 # now we can finally start sending data
-if [ $N_STREAMS == 2 ]; then
+if [ "$N_STREAMS" == "2" ]; then
 	mkfifo a b
 	nc -N $IP_A 8801 < a &
 	nc -N $IP_B 8802 < b &
 	$SPLIT_COMBINE -s a b
-elif [ $N_STREAMS == 3 ]; then
+elif [ "$N_STREAMS" == "3" ]; then
 	mkfifo a b c
 	nc -N $IP_A 8801 < a &
 	nc -N $IP_B 8802 < b &
