@@ -44,6 +44,7 @@ trap clean_exit SIGINT
 SPLIT_COMBINE="$DIR/split-combine"
 
 MODE="$1"
+N_STREAMS="2"
 
 if [ "$MODE" == "-l" ]; then
 
@@ -66,7 +67,7 @@ if [ "$MODE" == "-l" ]; then
 		nc -l 8803 > c &
 		$SPLIT_COMBINE -c a b c
 	else
-		echo "ERROR: unsupported number of streams: $N_STREAMS" 1>%2
+		echo "ERROR: unsupported number of streams: $N_STREAMS" 1>&2
 		clean_exit
 	fi
 
@@ -78,11 +79,18 @@ if [ "$MODE" == "-l" ]; then
 
 elif [ "$MODE" == "-s" ]; then
 	DEST="$2"
-	N_STREAMS=$3
+	N_STREAMS="$3"
 else
 	DEST="$1"
-	N_STREAMS=$2
+	N_STREAMS="$2"
 fi
+
+
+# defaults to 2
+if [ -z "$N_STREAMS" ]; then
+	N_STREAMS=2
+fi
+
 
 # IP_A is on the first auxiliary subnet  172.16.1.0/24
 # IP_B is on the second auxiliary subnet 172.16.2.0/24
@@ -125,18 +133,23 @@ fi
 
 # now we can finally start sending data
 if [ "$N_STREAMS" == "2" ]; then
+	# echo "IP_A: $IP_A"
+	# echo "IP_B: $IP_B"
 	mkfifo a b
 	nc -N $IP_A 8801 < a &
 	nc -N $IP_B 8802 < b &
 	$SPLIT_COMBINE -s a b
 elif [ "$N_STREAMS" == "3" ]; then
+	# echo "IP_A: $IP_A"
+	# echo "IP_B: $IP_B"
+	# echo "IP_C: $IP_C"
 	mkfifo a b c
 	nc -N $IP_A 8801 < a &
 	nc -N $IP_B 8802 < b &
-	nc -N $IP_C 8802 < c &
+	nc -N $IP_C 8803 < c &
 	$SPLIT_COMBINE -s a b c
 else
-	echo "ERROR: unknown number of streams!" 1>&2
+	echo "ERROR: unknown number of streams: $N_STREAMS" 1>&2
 	echo "THIS IS A LOGIC ERROR" 1>&2
 	clean_exit
 fi
