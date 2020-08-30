@@ -26,6 +26,7 @@ if [ -z "$1" ]; then
 	echo -e "\t\tnissan"
 	echo -e "\t\tnissan-3"
 	echo -e "\t\tlotus"
+	echo -e "\t\tdl"
 	echo
 	exit 1
 fi
@@ -116,6 +117,10 @@ elif [ "$DEST" == "lotus" ]; then
 	IP_A=172.16.1.4
 	IP_B=172.16.2.4
 	IP_C=10.0.1.105
+elif [ "$DEST" == "dl" ]; then
+	IP_A=172.16.1.10
+	IP_B=172.16.2.10
+	IP_C=10.0.1.10
 else
 	echo "ERROR: unknown destination: $DEST" 1>&2
 	clean_exit
@@ -127,7 +132,7 @@ if [ "$N_STREAMS" == "3" ] && [ "$IP_B" == "null" ]; then
 	echo "       this host ($HOSTNAME) only supports 2 concurrent streams" 1>&2
 	clean_exit
 fi
-if [ "$HOSTNAME" == "lotus" ]; then
+if [ "$HOSTNAME" == "INSERTHOSTNAMEHERE" ]; then
 	# for machines without a connection to the second auxiliary subnet
 	IP_B=$IP_C
 fi
