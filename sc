@@ -114,8 +114,8 @@ elif [ "$DEST" == "nissan" ]; then
 	IP_C=10.0.1.102
 elif [ "$DEST" == "lotus" ]; then
 	IP_A=172.16.1.4
-	IP_B=null
-	IP_C=10.0.1.103
+	IP_B=172.16.2.4
+	IP_C=10.0.1.105
 else
 	echo "ERROR: unknown destination: $DEST" 1>&2
 	clean_exit
